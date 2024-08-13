@@ -1,6 +1,6 @@
 FROM node:16 AS builder
 
-WORKDIR /app
+WORKDIR /usr/app
 
 COPY package*.json ./
 RUN npm install
@@ -8,11 +8,11 @@ COPY . .
 
 FROM node:16
 
-WORKDIR /app
+WORKDIR /usr/app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/src ./src
+COPY --from=builder /usr/app/node_modules ./node_modules
+COPY --from=builder /usr/app/package*.json ./
+COPY --from=builder /usr/app/src ./src
 
 EXPOSE 3000
 CMD [ "npm", "start" ]
