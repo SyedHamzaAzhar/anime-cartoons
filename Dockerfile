@@ -59,8 +59,6 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-RUN npm run build
-
 FROM node:16
 
 COPY --from=builder /app/node_modules ./node_modules
