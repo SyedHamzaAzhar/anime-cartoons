@@ -64,4 +64,4 @@ FROM node:16
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 EXPOSE 3000
-CMD [ "npm", "start" ]
+CMD [ "npm", "start", "dev" ]
