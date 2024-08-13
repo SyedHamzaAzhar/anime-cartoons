@@ -1,17 +1,31 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
-
+import https from 'https';
+import { extractFembed } from './helpers/extractors/fembed.js';
 import {
- generateEncryptAjaxParameters,
- decryptEncryptAjaxResponse,
+      decryptEncryptAjaxResponse,
+      generateEncryptAjaxParameters,
 } from './helpers/extractors/goload.js';
 import { extractStreamSB } from './helpers/extractors/streamsb.js';
-import { extractFembed } from './helpers/extractors/fembed.js';
-import { USER_AGENT, renameKey } from './utils.js';
+import { USER_AGENT } from './utils.js';
 
-const BASE_URL = 'https://gogoanime.film/';
-const BASE_URL2 = 'https://gogoanime.gg/';
-const ajax_url = 'https://ajax.gogo-load.com/';
+const agent = new https.Agent({  
+  rejectUnauthorized: false
+});
+
+const ajax_url = 'https://ajax.gogocdn.net/';
+
+axios.get(ajax_url, { httpsAgent: agent })
+  .then(response => {
+    console.log(response.data);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+// const BASE_URL2 = 'https://gogoanime.film/';
+// const BASE_URL2 = 'https://gogoanime.gg/';
+const BASE_URL2 = 'https://gogoanime3.co/';
+// const ajax_url = 'https://ajax.gogo-load.com/';
 const anime_info_url = 'https://gogoanime.film/category/';
 const anime_movies_path = '/anime-movies.html';
 const popular_path = '/popular.html';
@@ -20,7 +34,7 @@ const search_path = '/search.html';
 const popular_ongoing_url = `${ajax_url}ajax/page-recent-release-ongoing.html`;
 const recent_release_url = `${ajax_url}ajax/page-recent-release.html`;
 const list_episodes_url = `${ajax_url}ajax/load-list-episode`;
-const seasons_url = 'https://gogoanime.film/sub-category/';
+const seasons_url = `${BASE_URL2}/sub-category/`;
 
 const Referer = 'https://gogoplay.io/';
 const goload_stream_url = 'https://goload.pro/streaming.php';
@@ -181,7 +195,7 @@ export const scrapeM3U8 = async ({ id }) => {
 export const scrapeSearch = async ({ list = [], keyw, page = 1 }) => {
  try {
   const searchPage = await axios.get(
-   `${BASE_URL + search_path}?keyword=${keyw}&page=${page}`
+   `${BASE_URL2 + search_path}?keyword=${keyw}&page=${page}`
   );
   const $ = cheerio.load(searchPage.data);
 
@@ -189,7 +203,7 @@ export const scrapeSearch = async ({ list = [], keyw, page = 1 }) => {
    list.push({
     animeId: $(el).find('p.name > a').attr('href').split('/')[2],
     animeTitle: $(el).find('p.name > a').attr('title'),
-    animeUrl: BASE_URL + '/' + $(el).find('p.name > a').attr('href'),
+    animeUrl: BASE_URL2 + '/' + $(el).find('p.name > a').attr('href'),
     animeImg: $(el).find('div > a > img').attr('src'),
     status: $(el).find('p.released').text().trim(),
    });
@@ -201,6 +215,22 @@ export const scrapeSearch = async ({ list = [], keyw, page = 1 }) => {
   return { error: err };
  }
 };
+
+export const scrapeAnimeUrl = async ({animeUrl = ''}) =>{
+      const searchPage = await axios.get(animeUrl);
+
+      const $ = cheerio.load(searchPage.data);
+      $('div.last_episodes > ul > li').each((i, el) => {
+            list.push({
+             animeId: $(el).find('p.name > a').attr('href').split('/')[2],
+             animeTitle: $(el).find('p.name > a').attr('title'),
+             animeUrl: BASE_URL2 + '/' + $(el).find('p.name > a').attr('href'),
+             animeImg: $(el).find('div > a > img').attr('src'),
+             status: $(el).find('p.released').text().trim(),
+            });
+           });
+
+}
 
 export const scrapeRecentRelease = async ({ list = [], page = 1, type = 1 }) => {
  try {
@@ -217,7 +247,7 @@ export const scrapeRecentRelease = async ({ list = [], page = 1, type = 1 }) => 
     episodeNum: $(el).find('p.episode').text().replace('Episode ', '').trim(),
     subOrDub: $(el).find('div > a > div').attr('class').replace('type ic-', ''),
     animeImg: $(el).find('div > a > img').attr('src'),
-    episodeUrl: BASE_URL + '/' + $(el).find('p.name > a').attr('href'),
+    episodeUrl: BASE_URL2 + '/' + $(el).find('p.name > a').attr('href'),
    });
   });
   return list;
@@ -230,7 +260,7 @@ export const scrapeRecentRelease = async ({ list = [], page = 1, type = 1 }) => 
 export const scrapeNewSeason = async ({ list = [], page = 1 }) => {
  try {
   const popularPage = await axios.get(`
-        ${BASE_URL + new_season_path}?page=${page}
+        ${BASE_URL2 + new_season_path}?page=${page}
         `);
   const $ = cheerio.load(popularPage.data);
 
@@ -240,7 +270,7 @@ export const scrapeNewSeason = async ({ list = [], page = 1 }) => {
     animeTitle: $(el).find('p.name > a').attr('title'),
     animeImg: $(el).find('div > a > img').attr('src'),
     releasedDate: $(el).find('p.released').text().replace('Released: ', '').trim(),
-    animeUrl: BASE_URL + '/' + $(el).find('p.name > a').attr('href'),
+    animeUrl: BASE_URL2 + '/' + $(el).find('p.name > a').attr('href'),
    });
   });
   return list;
@@ -253,7 +283,7 @@ export const scrapeNewSeason = async ({ list = [], page = 1 }) => {
 export const scrapePopularAnime = async ({ list = [], page = 1 }) => {
  try {
   const popularPage = await axios.get(`
-        ${BASE_URL + popular_path}?page=${page}
+        ${BASE_URL2 + popular_path}?page=${page}
        `);
   const $ = cheerio.load(popularPage.data);
 
@@ -263,7 +293,7 @@ export const scrapePopularAnime = async ({ list = [], page = 1 }) => {
     animeTitle: $(el).find('p.name > a').attr('title'),
     animeImg: $(el).find('div > a > img').attr('src'),
     releasedDate: $(el).find('p.released').text().replace('Released: ', '').trim(),
-    animeUrl: BASE_URL + '/' + $(el).find('p.name > a').attr('href'),
+    animeUrl: BASE_URL2 + '/' + $(el).find('p.name > a').attr('href'),
    });
   });
   return list;
@@ -276,7 +306,7 @@ export const scrapePopularAnime = async ({ list = [], page = 1 }) => {
 export const scrapeAnimeMovies = async ({ list = [], aph = '', page = 1 }) => {
  try {
   const popularPage = await axios.get(`
-        ${BASE_URL + anime_movies_path}?aph=${aph.trim().toUpperCase()}&page=${page}
+        ${BASE_URL2 + anime_movies_path}?aph=${aph.trim().toUpperCase()}&page=${page}
         `);
   const $ = cheerio.load(popularPage.data);
 
@@ -286,7 +316,7 @@ export const scrapeAnimeMovies = async ({ list = [], aph = '', page = 1 }) => {
     animeTitle: $(el).find('p.name > a').attr('title'),
     animeImg: $(el).find('div > a > img').attr('src'),
     releasedDate: $(el).find('p.released').text().replace('Released: ', '').trim(),
-    animeUrl: BASE_URL + '/' + $(el).find('p.name > a').attr('href'),
+    animeUrl: BASE_URL2 + '/' + $(el).find('p.name > a').attr('href'),
    });
   });
   return list;
@@ -326,7 +356,7 @@ export const scrapeTopAiringAnime = async ({ list = [], page = 1 }) => {
        .attr('style')
        .match('(https?://.*.(?:png|jpg))')[0],
       latestEp: $(el).find('p:nth-child(4) > a').text().trim(),
-      animeUrl: BASE_URL + '/' + $(el).find('a:nth-child(1)').attr('href'),
+      animeUrl: BASE_URL2 + '/' + $(el).find('a:nth-child(1)').attr('href'),
       genres: genres,
      });
     });
@@ -355,7 +385,7 @@ export const scrapeTopAiringAnime = async ({ list = [], page = 1 }) => {
      .attr('style')
      .match('(https?://.*.(?:png|jpg))')[0],
     latestEp: $(el).find('p:nth-child(4) > a').text().trim(),
-    animeUrl: BASE_URL + '/' + $(el).find('a:nth-child(1)').attr('href'),
+    animeUrl: BASE_URL2 + '/' + $(el).find('a:nth-child(1)').attr('href'),
     genres: genres,
    });
   });
@@ -372,7 +402,7 @@ export const scrapeGenre = async ({ list = [], genre, page = 1 }) => {
   genre = genre.trim().replace(/ /g, '-').toLowerCase();
 
   if (Genres.indexOf(genre) > -1) {
-   const genrePage = await axios.get(`${BASE_URL}genre/${genre}?page=${page}`);
+   const genrePage = await axios.get(`${BASE_URL2}genre/${genre}?page=${page}`);
    const $ = cheerio.load(genrePage.data);
 
    $('div.last_episodes > ul > li').each((i, elem) => {
@@ -381,7 +411,7 @@ export const scrapeGenre = async ({ list = [], genre, page = 1 }) => {
      animeTitle: $(elem).find('p.name > a').attr('title'),
      animeImg: $(elem).find('div > a > img').attr('src'),
      releasedDate: $(elem).find('p.released').text().replace('Released: ', '').trim(),
-     animeUrl: BASE_URL + '/' + $(elem).find('p.name > a').attr('href'),
+     animeUrl: BASE_URL2 + '/' + $(elem).find('p.name > a').attr('href'),
     });
    });
    return list;
@@ -407,7 +437,7 @@ export const scrapeGenre = async ({ list = [], genre, page = 1 }) => {
 export const scrapeAnimeDetails = async ({ id }) => {
  try {
   let genres = [];
-  let epList = [];
+  let episodeIds = [];
 
   const animePageTest = await axios.get(`https://gogoanime.gg/category/${id}`);
 
@@ -434,27 +464,30 @@ export const scrapeAnimeDetails = async ({ id }) => {
    genres.push($(elem).attr('title').trim());
   });
 
-  const ep_start = $('#episode_page > li').first().find('a').attr('ep_start');
-  const ep_end = $('#episode_page > li').last().find('a').attr('ep_end');
-  const movie_id = $('#movie_id').attr('value');
-  const alias = $('#alias_anime').attr('value');
+//   const ep_start = $('#episode_page > li').first().find('a').attr('ep_start');
+//   const ep_end = $('#episode_page > li').last().find('a').attr('ep_end');
+//   const movie_id = $('#movie_id').attr('value');
+//        const alias = $('#alias_anime').attr('value');
 
-  const html = await axios.get(
-   `${list_episodes_url}?ep_start=${ep_start}&ep_end=${ep_end}&id=${movie_id}&default_ep=${0}&alias=${alias}`
-  );
-  const $$ = cheerio.load(html.data);
+//   const html = await axios.get(
+//    `${seasons_url}?ep_start=${ep_start}&ep_end=${ep_end}&id=${movie_id}&default_ep=${0}&alias=${alias}`
+//   );
+       //   const $$ = cheerio.load(html.data);
+//    $('div.anime_video_body > ul').each((i, el) => {
+//    let episodeLocale = $(el).find(`div.cate`).text().toLowerCase();
+//    console.log("episodeId: ", el.find('a'));
+//    epList.push({
+//     episodeId: $(el).find('a').attr('href').split('/')[1],
+//     episodeNum: $(el).find(`div.name`).text().replace('EP ', ''),
+//     episodeUrl: BASE_URL2 + $(el).find(`a`).attr('href').trim(),
+//     isSubbed:  episodeLocale == "sub",
+//     isDubbed:  episodeLocale == "dub",
+//    });
+       //   });
+       
+      const hrefs = $('div.anime_video_body episode_related li a').map((i, el) => $(el).attr('href')).get();
 
-  $$('#episode_related > li').each((i, el) => {
-    let episodeLocale = $(el).find(`div.cate`).text().toLowerCase() ;
-   epList.push({
-    episodeId: $(el).find('a').attr('href').split('/')[1],
-    episodeNum: $(el).find(`div.name`).text().replace('EP ', ''),
-    episodeUrl: BASE_URL + $(el).find(`a`).attr('href').trim(),
-    isSubbed:  episodeLocale == "sub",
-    isDubbed:  episodeLocale == "dub",
-   });
-  });
-
+       
   return {
    animeTitle: animeTitle.toString(),
    type: type.toString(),
@@ -464,8 +497,8 @@ export const scrapeAnimeDetails = async ({ id }) => {
    otherNames: otherName,
    synopsis: desc.toString(),
    animeImg: animeImage.toString(),
-   totalEpisodes: ep_end,
-   episodesList: epList,
+//    totalEpisodes: ep_end,
+   episodesList: hrefs,
   };
  } catch (err) {
   console.log(err);
@@ -483,7 +516,7 @@ export const scrapeSeason = async ({ list = [], season, page = 1 }) => {
     animeId: $(el).find('div > a').attr('href').split('/')[2],
     animeTitle: $(el).find('div > a').attr('title'),
     animeImg: $(el).find('div > a > img').attr('src'),
-    animeUrl: BASE_URL + '/' + $(el).find('div > a').attr('href'),
+    animeUrl: BASE_URL2 + '/' + $(el).find('div > a').attr('href'),
    });
   });
 

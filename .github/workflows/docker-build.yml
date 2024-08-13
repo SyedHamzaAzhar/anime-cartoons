@@ -21,4 +21,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_TAGS }}
+          tags: ${{ secrets.DOCKERHUB_TAGS }}/anime
