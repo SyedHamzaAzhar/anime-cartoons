@@ -1,5 +1,6 @@
 import axios from 'axios';
-import cheerio from 'cheerio';
+// import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import https from 'https';
 import { extractFembed } from './helpers/extractors/fembed.js';
 import {
