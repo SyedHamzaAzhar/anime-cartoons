@@ -18,7 +18,7 @@ import {
     scrapeTopAiringAnime
 } from './anime_parser.js';
 
-const port = process.env.PORT || 3004;
+const port = process.env.PORT || 3000;
 
 const corsOptions = {
     origin: '*',
