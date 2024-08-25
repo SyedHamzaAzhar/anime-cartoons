@@ -1,25 +1,24 @@
-import express from 'express';
-import cors from 'cors';
 import axios from 'axios';
+import cors from 'cors';
+import express from 'express';
 
 import {
-    scrapeGenre,
-    scrapeTopAiringAnime,
+    DownloadReferer,
+    scrapeAnimeDetails,
     scrapeAnimeMovies,
-    scrapePopularAnime,
+    scrapeGenre,
+    scrapeM3U8,
     scrapeNewSeason,
+    scrapePopularAnime,
     scrapeRecentRelease,
     scrapeSearch,
-    scrapeAnimeDetails,
     scrapeSeason,
-    scrapeM3U8,
     scrapeStreamSB,
-    scrapeFembed,
     scrapeThread,
-    DownloadReferer,
+    scrapeTopAiringAnime
 } from './anime_parser.js';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3004;
 
 const corsOptions = {
     origin: '*',
@@ -136,10 +135,10 @@ app.get('/top-airing', async(req, res) => {
     }
 });
 
-app.get('/season/:season', async(req, res) => {
+app.get('/season', async(req, res) => {
     try {
         const page = req.query.page;
-        const season = req.params.season;
+        const season = req.query.season;
 
         const data = await scrapeSeason({ page: page, season: season });
 
@@ -153,9 +152,9 @@ app.get('/season/:season', async(req, res) => {
     }
 });
 
-app.get('/genre/:genre', async(req, res) => {
+app.get('/genre', async(req, res) => {
     try {
-        const genre = req.params.genre;
+        const genre = req.query.genre;
         const page = req.query.page;
 
         const data = await scrapeGenre({ genre: genre, page: page });
@@ -170,9 +169,9 @@ app.get('/genre/:genre', async(req, res) => {
     }
 });
 
-app.get('/anime-details/:id', async(req, res) => {
+app.get('/anime-details', async(req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.query.id;
 
         const data = await scrapeAnimeDetails({ id: id });
 
@@ -186,9 +185,9 @@ app.get('/anime-details/:id', async(req, res) => {
     }
 });
 
-app.get('/fembed/watch/:id', async(req, res) => {
+app.get('/fembed/watch', async(req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.query.id;
 
         //const data = await scrapeFembed({ id: id });
 
@@ -202,9 +201,9 @@ app.get('/fembed/watch/:id', async(req, res) => {
     }
 });
 
-app.get('/vidcdn/watch/:id', async(req, res) => {
+app.get('/vidcdn/watch', async(req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.query.id;
 
         const data = await scrapeM3U8({ id: id });
 
@@ -218,9 +217,9 @@ app.get('/vidcdn/watch/:id', async(req, res) => {
     }
 });
 
-app.get('/streamsb/watch/:id', async(req, res) => {
+app.get('/streamsb/watch', async(req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.query.id;
 
         const data = await scrapeStreamSB({ id: id });
 
@@ -234,9 +233,9 @@ app.get('/streamsb/watch/:id', async(req, res) => {
     }
 });
 
-app.get('/thread/:episodeId', async(req, res) => {
+app.get('/thread', async(req, res) => {
     try {
-        const episodeId = req.params.episodeId;
+        const episodeId = req.query.episodeId;
         const page = req.query.page;
 
         const data = await scrapeThread({ episodeId: episodeId, page: page });
@@ -251,9 +250,9 @@ app.get('/thread/:episodeId', async(req, res) => {
     }
 });
 
-app.get('/download-links/:episodeId', async(req, res) => {
+app.get('/download-links', async(req, res) => {
     try {
-        const episodeId = req.params.episodeId;
+        const episodeId = req.query.episodeId;
 
         //const data = await scrapeDownloadLinks({ episodeId: episodeId });
 

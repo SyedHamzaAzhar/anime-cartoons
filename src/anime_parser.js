@@ -28,14 +28,14 @@ axios.get(ajax_url, { httpsAgent: agent })
 const BASE_URL2 = 'https://gogoanime3.co/';
 // const ajax_url = 'https://ajax.gogo-load.com/';
 const anime_info_url = 'https://gogoanime.film/category/';
-const anime_movies_path = '/anime-movies.html';
-const popular_path = '/popular.html';
-const new_season_path = '/new-season.html';
-const search_path = '/search.html';
+const anime_movies_path = 'anime-movies.html';
+const popular_path = 'popular.html';
+const new_season_path = 'new-season.html';
+const search_path = 'search.html';
 const popular_ongoing_url = `${ajax_url}ajax/page-recent-release-ongoing.html`;
 const recent_release_url = `${ajax_url}ajax/page-recent-release.html`;
 const list_episodes_url = `${ajax_url}ajax/load-list-episode`;
-const seasons_url = `${BASE_URL2}/sub-category/`;
+const seasons_url = `${BASE_URL2}sub-category/`;
 
 const Referer = 'https://gogoplay.io/';
 const goload_stream_url = 'https://goload.pro/streaming.php';
