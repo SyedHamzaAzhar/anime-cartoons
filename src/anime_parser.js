@@ -508,24 +508,54 @@ export const scrapeAnimeDetails = async ({ id }) => {
 };
 
 export const scrapeSeason = async ({ list = [], season, page = 1 }) => {
- try {
-  const season_page = await axios.get(`${seasons_url}${season}?page=${page}`);
-  const $ = cheerio.load(season_page.data);
+  try {
+    // Fetch the season page
+    const season_page = await axios.get(`${seasons_url}${season}?page=${page}`);
+    const $ = cheerio.load(season_page.data);
 
-  $('div.last_episodes > ul > li').each((i, el) => {
-   list.push({
-    animeId: $(el).find('div > a').attr('href').split('/')[2],
-    animeTitle: $(el).find('div > a').attr('title'),
-    animeImg: $(el).find('div > a > img').attr('src'),
-    animeUrl: BASE_URL2 + '/' + $(el).find('div > a').attr('href'),
-   });
-  });
+    // Extract anime details from the page
+    $('div.last_episodes > ul > li').each((_, el) => {
+      list.push({
+        animeId: $(el).find('div > a').attr('href').split('/')[2],
+        animeTitle: $(el).find('div > a').attr('title'),
+        animeImg: $(el).find('div > a > img').attr('src'),
+        animeUrl: BASE_URL2 + $(el).find('div > a').attr('href'),
+      });
+    });
 
-  return list;
- } catch (err) {
-  console.log(err);
-  return { error: err };
- }
+    // Fetch episode details for each anime
+    const arrList = await Promise.all(list.map(async (element) => {
+      try {
+        return await animeCategoryEpisodes(element);
+      } catch (error) {
+        console.error(`Error fetching episodes for ${element.animeTitle}:`, error);
+        return null;  // Return null if there's an error
+      }
+    }));
+
+    return arrList;
+  } catch (err) {
+    console.error("Error in scrapeSeason:", err);
+    return { error: err };
+  }
+};
+
+// Function to fetch the total number of episodes for a given anime
+const animeCategoryEpisodes = async (element) => {
+  try {
+    // Fetch anime page
+    const anime_page = await axios.get(element.animeUrl);
+    const $ = cheerio.load(anime_page.data);
+
+    // Extract the total number of episodes
+    const totalEpisodes = $('div.anime_video_body > ul li > a').attr('ep_end') || 0;
+    
+    // Return the updated object with the total episodes
+    return { ...element, totalEpisodes };
+  } catch (err) {
+    console.error(`Error in animeCategoryEpisodes:`, err);
+    throw err;  // Rethrow the error to be handled by the caller
+  }
 };
 
 // scrapeAnimeDetails({ id: "naruto" }).then((res) => console.log(res))
