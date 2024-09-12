@@ -4,8 +4,8 @@ import * as cheerio from 'cheerio';
 import https from 'https';
 import { extractFembed } from './helpers/extractors/fembed.js';
 import {
-      decryptEncryptAjaxResponse,
-      generateEncryptAjaxParameters,
+  decryptEncryptAjaxResponse,
+  generateEncryptAjaxParameters,
 } from './helpers/extractors/goload.js';
 import { extractStreamSB } from './helpers/extractors/streamsb.js';
 import { USER_AGENT } from './utils.js';
@@ -27,7 +27,7 @@ axios.get(ajax_url, { httpsAgent: agent })
 // const BASE_URL2 = 'https://gogoanime.gg/';
 const BASE_URL2 = 'https://gogoanime3.co/';
 // const ajax_url = 'https://ajax.gogo-load.com/';
-const anime_info_url = 'https://gogoanime.film/category/';
+const anime_info_url = 'https://gogoanime3.co/category/';
 const anime_movies_path = 'anime-movies.html';
 const popular_path = 'popular.html';
 const new_season_path = 'new-season.html';
@@ -440,7 +440,7 @@ export const scrapeAnimeDetails = async ({ id }) => {
   let genres = [];
   let episodeIds = [];
 
-  const animePageTest = await axios.get(`https://gogoanime.gg/category/${id}`);
+  const animePageTest = await axios.get(`${anime_info_url}${id}`);
 
   const $ = cheerio.load(animePageTest.data);
 
@@ -465,28 +465,7 @@ export const scrapeAnimeDetails = async ({ id }) => {
    genres.push($(elem).attr('title').trim());
   });
 
-//   const ep_start = $('#episode_page > li').first().find('a').attr('ep_start');
-//   const ep_end = $('#episode_page > li').last().find('a').attr('ep_end');
-//   const movie_id = $('#movie_id').attr('value');
-//        const alias = $('#alias_anime').attr('value');
-
-//   const html = await axios.get(
-//    `${seasons_url}?ep_start=${ep_start}&ep_end=${ep_end}&id=${movie_id}&default_ep=${0}&alias=${alias}`
-//   );
-       //   const $$ = cheerio.load(html.data);
-//    $('div.anime_video_body > ul').each((i, el) => {
-//    let episodeLocale = $(el).find(`div.cate`).text().toLowerCase();
-//    console.log("episodeId: ", el.find('a'));
-//    epList.push({
-//     episodeId: $(el).find('a').attr('href').split('/')[1],
-//     episodeNum: $(el).find(`div.name`).text().replace('EP ', ''),
-//     episodeUrl: BASE_URL2 + $(el).find(`a`).attr('href').trim(),
-//     isSubbed:  episodeLocale == "sub",
-//     isDubbed:  episodeLocale == "dub",
-//    });
-       //   });
-       
-      const hrefs = $('div.anime_video_body episode_related li a').map((i, el) => $(el).attr('href')).get();
+    const totalEpisodes = $('div.anime_video_body > ul li > a').attr('ep_end') || 0;
 
        
   return {
@@ -498,8 +477,7 @@ export const scrapeAnimeDetails = async ({ id }) => {
    otherNames: otherName,
    synopsis: desc.toString(),
    animeImg: animeImage.toString(),
-//    totalEpisodes: ep_end,
-   episodesList: hrefs,
+totalEpisodes,
   };
  } catch (err) {
   console.log(err);
@@ -523,40 +501,45 @@ export const scrapeSeason = async ({ list = [], season, page = 1 }) => {
       });
     });
 
-    // Fetch episode details for each anime
-    const arrList = await Promise.all(list.map(async (element) => {
-      try {
-        return await animeCategoryEpisodes(element);
-      } catch (error) {
-        console.error(`Error fetching episodes for ${element.animeTitle}:`, error);
-        return null;  // Return null if there's an error
-      }
-    }));
 
-    return arrList;
+    return list;
   } catch (err) {
     console.error("Error in scrapeSeason:", err);
     return { error: err };
   }
 };
 
-// Function to fetch the total number of episodes for a given anime
-const animeCategoryEpisodes = async (element) => {
+export const scrapeAnimeInfo = async (animeId) => {
   try {
-    // Fetch anime page
-    const anime_page = await axios.get(element.animeUrl);
-    const $ = cheerio.load(anime_page.data);
+    const response = await axios.get(`${anime_info_url}${animeId}`);
+    const $ = cheerio.load(response.data);
 
-    // Extract the total number of episodes
-    const totalEpisodes = $('div.anime_video_body > ul li > a').attr('ep_end') || 0;
-    
-    // Return the updated object with the total episodes
-    return { ...element, totalEpisodes };
-  } catch (err) {
-    console.error(`Error in animeCategoryEpisodes:`, err);
-    throw err;  // Rethrow the error to be handled by the caller
+    // Extract the image URL
+    const imageUrl = $('.anime_info_body_bg img').attr('src');
+
+    // Extract the title
+    const title = $('.anime_info_body_bg h1').text();
+
+    // Extract the full description
+    const description = $('.description').text().trim();
+
+    // Extract the total episodes
+    const episodes = $('#episode_page a').map((i, el) => {
+      return parseInt($(el).attr('ep_end'));
+    }).get();
+
+    // Find the maximum episode count
+    const totalEpisodes = Math.max(...episodes);
+
+
+    // Return the extracted data
+    return { imageUrl, title, description, totalEpisodes };
+  } catch (error) {
+    console.error("Error fetching anime info:", error);
+    return null;
   }
 };
+
 
 // scrapeAnimeDetails({ id: "naruto" }).then((res) => console.log(res))
 

@@ -5,6 +5,7 @@ import express from 'express';
 import {
     DownloadReferer,
     scrapeAnimeDetails,
+    scrapeAnimeInfo,
     scrapeAnimeMovies,
     scrapeGenre,
     scrapeM3U8,
@@ -141,6 +142,22 @@ app.get('/season', async(req, res) => {
         const season = req.query.season;
 
         const data = await scrapeSeason({ page: page, season: season });
+
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(500).send({
+            status: 500,
+            error: 'Internal Error',
+            message: err,
+        });
+    }
+});
+
+app.get('/anime-info', async(req, res) => {
+    try {
+        const animeId = req.query.animeId;
+
+        const data = await scrapeAnimeInfo(animeId);
 
         res.status(200).json(data);
     } catch (err) {
