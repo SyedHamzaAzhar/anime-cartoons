@@ -2,6 +2,8 @@ import axios from 'axios';
 import cors from 'cors';
 import express from 'express';
 
+
+import connectDB from '../ormconfig.js';
 import {
     DownloadReferer,
     scrapeAnimeDetails,
@@ -19,6 +21,9 @@ import {
     scrapeTopAiringAnime
 } from './anime_parser.js';
 
+// Import API Routes
+import favouritesRoutes from "./routes/favourites.js";
+
 const port = process.env.PORT || 3000;
 
 const corsOptions = {
@@ -32,6 +37,9 @@ const app = express();
 
 app.use(cors(corsOptions));
 app.use(express.json());
+connectDB();
+app.use("/api/favrouties", favouritesRoutes);
+
 
 app.get('/', (req, res) => {
     res.status(200).json('Welcome to GogoAnime API!');
