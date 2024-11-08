@@ -14,7 +14,9 @@ const agent = new https.Agent({
   rejectUnauthorized: false
 });
 
-const ajax_url = 'https://gogocdn.net/';
+const ajax_url = 'https://ajax.gogocdn.net/';
+// const ajax_url = 'https://gogocdn.net/'
+// const ajax_url = 'https://gogoanime.by/'
 
 axios.get(ajax_url, { httpsAgent: agent })
   .then(response => {
@@ -25,7 +27,9 @@ axios.get(ajax_url, { httpsAgent: agent })
   });
 // const BASE_URL2 = 'https://gogoanime.film/';
 // const BASE_URL2 = 'https://gogoanime.gg/';
-const BASE_URL2 = 'https://gogoanime3.co/';
+// const BASE_URL2 = 'https://gogoanime3.co/';
+const BASE_URL2 = 'https://gogoanime3.cc/';
+// const BASE_URL2 = 'https://ww9.gogoanimes.org/';
 // const ajax_url = 'https://ajax.gogo-load.com/';
 const anime_info_url = 'https://gogoanime3.co/category/';
 const anime_movies_path = 'anime-movies.html';
