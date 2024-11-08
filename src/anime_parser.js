@@ -14,7 +14,7 @@ const agent = new https.Agent({
   rejectUnauthorized: false
 });
 
-const ajax_url = 'https://ajax.gogocdn.net/';
+const ajax_url = 'https://gogocdn.net/';
 
 axios.get(ajax_url, { httpsAgent: agent })
   .then(response => {
