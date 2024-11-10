@@ -13,6 +13,8 @@ WORKDIR /usr/app
 COPY --from=builder /usr/app/node_modules ./node_modules
 COPY --from=builder /usr/app/package*.json ./
 COPY --from=builder /usr/app/src ./src
+COPY --from=builder /usr/app/ormconfig.js ./
+
 
 EXPOSE 3000
 CMD [ "npm", "start" ]
