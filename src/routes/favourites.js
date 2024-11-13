@@ -34,17 +34,40 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-    try {      
-    const favouritesRepository = getRepository(Favourites);
-    const favourite = await favouritesRepository.save(req.body);
-    res.status(201).json({
-      code: 201,
-      message: "Record added successfully",
-      payload: favourite,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    try {
+        const { device_id, anime_id } = req.body;
+        const favouritesRepository = getRepository(Favourites);
+         if (!device_id || !anime_id) {
+          return res.status(400).json({
+              code: 400,
+              message: 'device_id and anime_id are required fields',
+              payload: null
+        })
+
+      }
+        // Check if a record with the same device_id and anime_id already exists
+        const existingFavourite = await favouritesRepository.findOne({
+            where: { device_id, anime_id },
+        });
+
+        if (existingFavourite) {
+            // If the record exists, respond with a 400 error
+            return res.status(400).json({
+                code: 400,
+                message: "Anime already exists in your wish list",
+            });
+        }
+
+        // If no existing record, create a new favourite entry
+        const favourite = await favouritesRepository.save(req.body);
+        res.status(201).json({
+            code: 201,
+            message: "Record added successfully",
+            payload: favourite,
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // router.put("/:id", async (req, res) => {

@@ -1,8 +1,8 @@
 import { EntitySchema } from "typeorm";
 
-const Favourites = new EntitySchema({
-    name: "Favourites",
-    tableName: "favourites",
+const RecentlyWatched = new EntitySchema({
+    name: "RecentlyWatched",
+    tableName: "recently_watched",
     columns: {
         id: {
             type: "int",
@@ -15,6 +15,11 @@ const Favourites = new EntitySchema({
         },
         anime_id: {
             type: "varchar",
+            nullable: false
+        },
+        watched_at: {
+            type: "timestamp",
+            default: () => "CURRENT_TIMESTAMP",
             nullable: false
         },
         created_at: {
@@ -31,4 +36,4 @@ const Favourites = new EntitySchema({
     }
 });
 
-export default Favourites;
+export default RecentlyWatched;

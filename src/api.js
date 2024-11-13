@@ -23,6 +23,8 @@ import {
 
 // Import API Routes
 import favouritesRoutes from "./routes/favourites.js";
+import recentlyWatchedsRoutes from "./routes/recently_watched.js";
+
 
 const port = process.env.PORT || 3000;
 
@@ -39,6 +41,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 connectDB();
 app.use("/api/favrouties", favouritesRoutes);
+app.use("/api/recentlyWatched", recentlyWatchedsRoutes);
+
 
 
 app.get('/', (req, res) => {
