@@ -17,6 +17,14 @@ const Favourites = new EntitySchema({
             type: "varchar",
             nullable: false
         },
+        anime_title: {
+            type: "varchar",
+            nullable: false
+        },
+        anime_image: {
+            type: "varchar",
+            nullable: false
+        },
         created_at: {
             type: "timestamp",
             default: () => "CURRENT_TIMESTAMP",

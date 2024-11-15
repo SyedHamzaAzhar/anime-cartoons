@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
     try {
-        const { device_id, anime_id } = req.body;
+        const { device_id, anime_id, anime_title, anime_image} = req.body;
         const recentlyWatchedRepository = getRepository(RecentlyWatched);
 
         // Check if a record with the same device_id and anime_id already exists
@@ -66,6 +66,8 @@ router.post("/", async (req, res) => {
             recentlyWatched = recentlyWatchedRepository.create({
                 device_id,
                 anime_id,
+                anime_title, 
+                anime_image, 
                 watched_at: new Date(),
             });
             await recentlyWatchedRepository.save(recentlyWatched);

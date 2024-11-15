@@ -17,6 +17,14 @@ const RecentlyWatched = new EntitySchema({
             type: "varchar",
             nullable: false
         },
+        anime_title: {
+            type: "varchar",
+            nullable: false
+        },
+        anime_image: {
+            type: "varchar",
+            nullable: false
+        },
         watched_at: {
             type: "timestamp",
             default: () => "CURRENT_TIMESTAMP",

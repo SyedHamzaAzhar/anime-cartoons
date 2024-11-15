@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
     try {
-        const { device_id, anime_id } = req.body;
+        const { device_id, anime_id} = req.body;
         const favouritesRepository = getRepository(Favourites);
          if (!device_id || !anime_id) {
           return res.status(400).json({
@@ -50,7 +50,7 @@ router.post("/", async (req, res) => {
             where: { device_id, anime_id },
         });
 
-        if (existingFavourite) {
+        if (existingFavourite !== null) {
             // If the record exists, respond with a 400 error
             return res.status(400).json({
                 code: 400,
