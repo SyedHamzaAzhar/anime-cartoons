@@ -44,8 +44,29 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
     try {
-        const { device_id, anime_id, anime_title, anime_image} = req.body;
+        const { device_id, anime_id, anime_title, anime_image } = req.body;
         const recentlyWatchedRepository = getRepository(RecentlyWatched);
+
+        // Validate required fields
+        if (!device_id || !anime_id) {
+            return res.status(400).json({
+                code: 400,
+                message: "device_id and anime_id are required fields",
+                payload: null,
+            });
+        }
+
+        // Fetch all records for the given device_id
+        const records = await recentlyWatchedRepository.find({
+            where: { device_id },
+            order: { watched_at: "ASC" }, // Order by oldest record first
+        });
+
+        // Delete the oldest record if the limit of 10 is exceeded
+        if (records.length >= 10) {
+            const oldestRecord = records[0]; // Get the oldest record
+            await recentlyWatchedRepository.delete(oldestRecord.id);
+        }
 
         // Check if a record with the same device_id and anime_id already exists
         let recentlyWatched = await recentlyWatchedRepository.findOne({
@@ -66,8 +87,8 @@ router.post("/", async (req, res) => {
             recentlyWatched = recentlyWatchedRepository.create({
                 device_id,
                 anime_id,
-                anime_title, 
-                anime_image, 
+                anime_title,
+                anime_image,
                 watched_at: new Date(),
             });
             await recentlyWatchedRepository.save(recentlyWatched);
@@ -78,7 +99,11 @@ router.post("/", async (req, res) => {
             });
         }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({
+            code: 500,
+            message: "Internal Server Error",
+            error: error.message,
+        });
     }
 });
 
