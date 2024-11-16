@@ -20,11 +20,14 @@ router.get("/", async (req, res) => {
       }
     
     if (anime_id !== undefined) {
-      const data = await favouritesRepository.find({ where: { device_id, anime_id } });
-     
+      const data = await favouritesRepository.findOne({ where: { device_id, anime_id } });
+      
+      if (data === null) {
+        return  res.status(204).json();
+      }
      return  res.status(200).json({
               code: 200,
-              message: 'Records fetched successfully',
+              message: 'Record fetched successfully',
               payload: data
         });
     }
@@ -35,7 +38,8 @@ router.get("/", async (req, res) => {
               code: 200,
               message: 'Records fetched successfully',
               payload: data
-        });
+    });
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
