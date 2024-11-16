@@ -23,7 +23,11 @@ router.get("/", async (req, res) => {
       const data = await favouritesRepository.findOne({ where: { device_id, anime_id } });
       
       if (data === null) {
-        return  res.status(204).json();
+        return  res.status(404).json({
+              code: 404,
+              message: 'Record not found',
+              payload: data
+        });
       }
      return  res.status(200).json({
               code: 200,
