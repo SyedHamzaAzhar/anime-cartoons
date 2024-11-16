@@ -7,7 +7,17 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
     try {
+        const { device_id } = req.query; // Extract device_id from query parameters
         const recentlyWatchedRepository = getRepository(RecentlyWatched);
+
+        // Validate that device_id is provided
+        if (!device_id) {
+            return res.status(400).json({
+                code: 400,
+                message: "device_id is a required query parameter",
+                payload: null,
+            });
+        }
 
         // Set default values for page and limit if not provided
         const page = parseInt(req.query.page) || 1; // Default to page 1
@@ -18,6 +28,7 @@ router.get("/", async (req, res) => {
 
         // Fetch records ordered by watched_at in descending order with pagination
         const [result, total] = await recentlyWatchedRepository.findAndCount({
+            where: { device_id },
             order: {
                 watched_at: "DESC",
             },
@@ -37,9 +48,14 @@ router.get("/", async (req, res) => {
             },
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({
+            code: 500,
+            message: "Internal Server Error",
+            error: error.message,
+        });
     }
 });
+
 
 
 router.post("/", async (req, res) => {
