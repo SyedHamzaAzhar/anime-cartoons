@@ -36,7 +36,12 @@ router.get("/", async (req, res) => {
         });
     }
     
-      const data = await favouritesRepository.find({ where: { device_id } });
+      const data = await favouritesRepository.find({
+          where: { device_id },
+          order: {
+                created_at: "DESC",
+          }
+      });
      
     res.status(200).json({
               code: 200,
